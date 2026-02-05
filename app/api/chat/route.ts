@@ -81,6 +81,7 @@ export async function POST(req: Request) {
         const messageText = message.text?.trim();
         if (!messageText) return null;
         return {
+          type: "message",
           role: message.role,
           content: [
             {
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
         };
       })
       .filter(Boolean) as Array<{
+      type: "message";
       role: "user" | "assistant";
       content: ContentPart[];
     }>;
@@ -158,7 +160,7 @@ export async function POST(req: Request) {
       );
     }
 
-    input.push({ role: "user", content: currentContent });
+    input.push({ type: "message", role: "user", content: currentContent });
 
     if (input.length === 0) {
       return NextResponse.json(
