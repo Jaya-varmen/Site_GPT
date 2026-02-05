@@ -171,7 +171,9 @@ export async function POST(req: Request) {
 
     const response = await client.responses.create({
       model: "gpt-5.2",
-      input
+      // SDK types are stricter than the runtime accepts for message arrays.
+      // Cast to any to avoid build-time type mismatch in Next.js.
+      input: input as any
     });
 
     const responseAny = response as unknown as {
