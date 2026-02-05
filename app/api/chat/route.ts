@@ -20,15 +20,21 @@ type IncomingFile = {
   size?: number;
 };
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+let client: OpenAI | null = null;
+
+function getClient(apiKey: string) {
+  if (!client) {
+    client = new OpenAI({ apiKey });
+  }
+  return client;
+}
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
       return NextResponse.json(
         { error: "OPENAI_API_KEY is not configured" },
         { status: 500 }
@@ -169,7 +175,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const response = await client.responses.create({
+    const response = await getClient(apiKey).responses.create({
       model: "gpt-5.2",
       // SDK types are stricter than the runtime accepts for message arrays.
       // Cast to any to avoid build-time type mismatch in Next.js.
