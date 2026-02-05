@@ -23,6 +23,14 @@ const MAX_IMAGES = 6;
 const MAX_DOC_FILES = 3;
 const MAX_DOC_SIZE_MB = 20;
 export default function Home() {
+  const generateId = () => {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+      return crypto.randomUUID();
+    }
+    return `${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2, 10)}`;
+  };
   const [space, setSpace] = useState<1 | 2 | 3>(1);
   const [chats, setChats] = useState<ChatSummary[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
@@ -268,7 +276,7 @@ export default function Home() {
     const activeChatId = await ensureChat();
     const outgoingDocs = pendingDocs;
     const newMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       role: "user",
       text: input.trim(),
       images: pendingImages.length ? pendingImages : undefined,
@@ -303,7 +311,7 @@ export default function Home() {
       }
 
       const assistantMessage: Message = {
-        id: payload?.assistantMessage?.id || crypto.randomUUID(),
+        id: payload?.assistantMessage?.id || generateId(),
         role: "assistant",
         text: payload.output || ""
       };
