@@ -144,7 +144,7 @@ export function addMessage(
 export function updateChatTitleIfDefault(chatId: string, text: string) {
   const row = getDb()
     .prepare("SELECT title FROM chats WHERE id = ?")
-    .get(chatId);
+    .get(chatId) as { title: string } | undefined;
 
   if (!row || row.title !== "Новый чат") {
     return;
