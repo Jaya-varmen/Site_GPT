@@ -19,7 +19,14 @@ export type StoredMessage = {
   createdAt: string;
 };
 
-let db: Database.Database | null = null;
+export type CommonChatMessage = {
+  id: string;
+  senderId: string;
+  text: string;
+  createdAt: string;
+};
+
+let db: any | null = null;
 
 function getDb() {
   if (!db) {
@@ -44,6 +51,13 @@ function getDb() {
         images_json TEXT,
         created_at TEXT NOT NULL,
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS common_chat_messages (
+        id TEXT PRIMARY KEY,
+        sender_id TEXT NOT NULL,
+        text TEXT NOT NULL,
+        created_at TEXT NOT NULL
       );
     `);
   }
@@ -162,4 +176,58 @@ export function deleteChat(chatId: string) {
   });
 
   return tx(chatId) > 0;
+}
+
+export function listCommonChatMessages(limit = 80): CommonChatMessage[] {
+  const safeLimit = Math.max(1, Math.min(300, Math.floor(limit)));
+  const rows = getDb()
+    .prepare(
+      `SELECT id, sender_id, text, created_at
+       FROM common_chat_messages
+       ORDER BY created_at DESC
+       LIMIT ?`
+    )
+    .all(safeLimit) as Array<{
+    id: string;
+    sender_id: string;
+    text: string;
+    created_at: string;
+  }>;
+
+  return rows
+    .reverse()
+    .map((row) => ({
+      id: row.id,
+      senderId: row.sender_id,
+      text: row.text,
+      createdAt: row.created_at
+    }));
+}
+
+export function addCommonChatMessage(senderId: string, text: string): CommonChatMessage {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  getDb()
+    .prepare(
+      "INSERT INTO common_chat_messages (id, sender_id, text, created_at) VALUES (?, ?, ?, ?)"
+    )
+    .run(id, senderId, text, now);
+
+  getDb().prepare(
+    `DELETE FROM common_chat_messages
+     WHERE id IN (
+       SELECT id
+       FROM common_chat_messages
+       ORDER BY created_at DESC
+       LIMIT -1 OFFSET 500
+     )`
+  ).run();
+
+  return {
+    id,
+    senderId,
+    text,
+    createdAt: now
+  };
 }

@@ -1,12 +1,14 @@
-# GPT-5.2 Visual Chat
+# Neurocube GPT Chat
 
-Minimal ChatGPT-style UI with screenshot upload, powered by the OpenAI Responses API.
+Minimal ChatGPT-style UI with screenshot/document upload, OpenAI/Gemini provider switch, and local chat history.
 
 ## Setup
 
-1. Copy `.env.local.example` to `.env.local` and set `OPENAI_API_KEY`.
-2. Install dependencies: `npm install`.
-3. Run locally: `npm run dev`.
+1. Copy `.env.local.example` to `.env.local`.
+2. Set `OPENAI_API_KEY` for OpenAI and `GEMINI_API_KEY` for Gemini.
+3. Optional: set `APP_PASSWORD` (default is `33405`).
+4. Install dependencies: `npm install`.
+5. Run locally: `npm run dev`.
 
 ## Production
 
