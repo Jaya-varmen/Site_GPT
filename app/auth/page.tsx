@@ -1,9 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AuthPage() {
+function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
@@ -63,5 +63,24 @@ export default function AuthPage() {
         {error ? <div className="error">{error}</div> : null}
       </div>
     </main>
+  );
+}
+
+function AuthFallback() {
+  return (
+    <main className="auth-page">
+      <div className="auth-card">
+        <h1>Вход в Neurocube GPT</h1>
+        <p>Загрузка...</p>
+      </div>
+    </main>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<AuthFallback />}>
+      <AuthPageContent />
+    </Suspense>
   );
 }
